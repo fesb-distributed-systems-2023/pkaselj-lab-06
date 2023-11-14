@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebAPIDesign.SimpleCrudInterface.Models;
-using WebAPIDesign.SimpleCrudInterface.Repositories.Interfaces;
+using WebAPIDesign.SimpleCrudInterface.Repositories;
 
 namespace WebAPIDesign.SimpleCrudInterface.Repositories
 {
     // Implement the `IEmailRepository` interface
-    public class EmailRepository : IEmailRepository
+    public class EmailRepository
     {
         // A list of all emails
         private List<Email> m_lstEmail;
         private object m_oLock = new object();
 
+        // ctor + tab
         public EmailRepository()
         {
             // Create and initialize a new email list
@@ -38,12 +39,6 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
             return generatedId;
         }
 
-        // Generate a string representation of
-        // current time in yyyy-MM-dd HH:mm:ss.fff format
-        private string GetCurrentTimestamp()
-        {
-            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        }
 
         /*
          * Create Operation: Create an email object
@@ -54,15 +49,8 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
             // Ignore what the user provided
             email.Id = GenerateUniqueId();
 
-            // Generate a new timestamo for the email
-            // Ignore what the user provided
-            email.Timestamp = GetCurrentTimestamp();
-
-            lock (m_oLock)
-            {
-                // Add the new email to the list
-                m_lstEmail.Add(email);
-            }
+            // Add the new email to the list
+            m_lstEmail.Add(email);
 
             // Always succeeds
             return true;
@@ -96,37 +84,7 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
             return email;
         }
 
-        /*
-         * Update Operation - Update the email with the specified ID
-         *  Return true on success or false on failure
-         */
-        public bool UpdateEmail(int id, Email newEmail)
-        {
-            // Check if any email matches the given id (from route, ignore body)
-            if (!m_lstEmail.Any(email => email.Id == id))
-            {
-                // If not, return false
-                return false;
-            }
-
-            lock (m_oLock)
-            {
-                // If an email matches an id, update the email information
-                var refEmail = m_lstEmail.FirstOrDefault(x => x.Id == id);
-
-                // Do not change the ID
-                // refEmail.Id = newEmail.Id;
-                refEmail.Sender = newEmail.Sender;
-                refEmail.Recipient = newEmail.Recipient;
-                refEmail.Subject = newEmail.Subject;
-                refEmail.Message = newEmail.Message;
-                refEmail.Timestamp = newEmail.Timestamp;
-            }
-
-            // Return true on success
-            return true;
-        }
-
+       
         /*
          * Delete Operation - Delete the email with the specified ID
          *  Return true on success or false on failure
@@ -134,17 +92,14 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
         public bool DeleteEmail(int id)
         {
             // Check if any email matches the given id
-            if (!m_lstEmail.Any(email => email.Id == id))
+            var itemToDelete = m_lstEmail.FirstOrDefault(itemEmail => itemEmail.Id == id);
+            if (itemToDelete == null)
             {
                 // If not, return false
                 return false;
             }
 
-            lock (m_oLock)
-            {
-                // If an email matches an id, delete
-                m_lstEmail = m_lstEmail.Where(x => x.Id != id).ToList();
-            }
+            m_lstEmail.Remove(itemToDelete);
 
             // Return true on success
             return true;

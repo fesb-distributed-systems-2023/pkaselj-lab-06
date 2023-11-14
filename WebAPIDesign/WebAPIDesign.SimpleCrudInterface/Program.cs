@@ -1,5 +1,4 @@
 using WebAPIDesign.SimpleCrudInterface.Repositories;
-using WebAPIDesign.SimpleCrudInterface.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +22,7 @@ builder.Services.AddSwaggerGen();
  *      the server automatically passes it an EmailRespository instance.
  *      The server constructs the EmailRepository object if needed.
  */
-builder.Services.AddSingleton<IEmailRepository, EmailRepository>();
+builder.Services.AddSingleton<EmailRepository>();
 
 /* 
  * Transient - Constructed for each HTTP request

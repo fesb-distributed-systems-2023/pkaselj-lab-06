@@ -17,11 +17,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebAPIDesign.SimpleCrudInterface.Models;
-using WebAPIDesign.SimpleCrudInterface.Repositories.Interfaces;
+using WebAPIDesign.SimpleCrudInterface.Repositories;
 
 namespace WebAPIDesign.SimpleCrudInterface.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class EmailController : ControllerBase
     {
@@ -41,10 +40,10 @@ namespace WebAPIDesign.SimpleCrudInterface.Controllers
          *  See https://www.c-sharpcorner.com/article/differences-between-scoped-transient-and-singleton-service/
          *  See https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-7.0
          */
-        private readonly IEmailRepository m_emailRepository;
+        private readonly EmailRepository m_emailRepository;
 
         // Use dependency injection to inject an instance of `EmailRepository`
-        public EmailController(IEmailRepository emailRepository)
+        public EmailController(EmailRepository emailRepository)
         {
             m_emailRepository = emailRepository;
         }
@@ -52,7 +51,7 @@ namespace WebAPIDesign.SimpleCrudInterface.Controllers
         /*
          * Create Operation: Create an email object
          */
-        [HttpPost("new")]
+        [HttpPost("/mails/new")]
         public IActionResult PostNewEmail([FromBody] Email email)
         {
             bool fSuccess = m_emailRepository.CreateNewEmail(email);
@@ -70,7 +69,7 @@ namespace WebAPIDesign.SimpleCrudInterface.Controllers
         /*
          * Read Operation 1 - Get all emails
          */
-        [HttpGet("all")]
+        [HttpGet("/mails/all")]
         public IActionResult GetAllEmails()
         {
             return Ok(m_emailRepository.GetAllEmails());
@@ -79,7 +78,7 @@ namespace WebAPIDesign.SimpleCrudInterface.Controllers
         /*
          * Read Operation 2 - Get the email with the specified ID
          */
-        [HttpGet("{id}")]
+        [HttpGet("/mails/{id}")]
         public IActionResult GetEmailById([FromRoute]int id)
         {
             var email = m_emailRepository.GetEmail(id);
@@ -95,25 +94,9 @@ namespace WebAPIDesign.SimpleCrudInterface.Controllers
         }
 
         /*
-         * Update Operation - Update the email with the specified ID
-         */
-        [HttpPost("{id}")]
-        public IActionResult UpdateEmailById([FromRoute] int id, [FromBody] Email newEmail)
-        { 
-            if(m_emailRepository.UpdateEmail(id, newEmail))
-            {
-                return Ok($"Succesfully updated the email with ID = {id}");
-            }
-            else
-            {
-                return NotFound($"Could not find the email with ID = {id}");
-            }
-        }
-
-        /*
          * Delete Operation - Delete the email with the specified ID
          */
-        [HttpDelete("{id}")]
+        [HttpDelete("/mails/{id}")]
         public IActionResult DeleteEmailById([FromRoute] int id)
         {
             if(m_emailRepository.DeleteEmail(id))

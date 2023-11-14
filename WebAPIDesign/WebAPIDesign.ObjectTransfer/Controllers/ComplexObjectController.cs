@@ -20,7 +20,6 @@ namespace WebAPIDesign.ObjectTransfer.Controllers
     {
         // Sending complex parameters by route is not possible !!!
 
-
         /* 
          * 
          * Sending a complex parameter using query.
