@@ -9,7 +9,6 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
     {
         // A list of all emails
         private List<Email> m_lstEmail;
-        private object m_oLock = new object();
 
         // ctor + tab
         public EmailRepository()
@@ -19,36 +18,11 @@ namespace WebAPIDesign.SimpleCrudInterface.Repositories
             m_lstEmail = new List<Email>();
         }
 
-        // Generate a random unique id for a new email
-        private int GenerateUniqueId()
-        {
-            int generatedId;
-
-            // Prevent any other thread/request from accessing the list
-            // during ID generation, so the ID is guaranteed to be unique
-            lock (m_oLock)
-            {
-                do
-                {
-                    // Pick a random number
-                    generatedId = Random.Shared.Next(0, 1024);
-                }
-                while (m_lstEmail.Any(email => email.Id == generatedId));
-            }
-
-            return generatedId;
-        }
-
-
         /*
          * Create Operation: Create an email object
          */
         public bool CreateNewEmail(Email email)
         {
-            // Generate a new ID for the email.
-            // Ignore what the user provided
-            email.Id = GenerateUniqueId();
-
             // Add the new email to the list
             m_lstEmail.Add(email);
 
